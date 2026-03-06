@@ -24529,6 +24529,10 @@
               }
             ],
             "description": "Token endpoint auth method"
+          },
+          "useIdTokenClaims": {
+            "description": "Use ID token claims instead of userinfo endpoint (useful for ADFS)",
+            "type": "boolean"
           }
         },
         "required": [
@@ -24549,7 +24553,8 @@
           "storageLabelClaim",
           "storageQuotaClaim",
           "timeout",
-          "tokenEndpointAuthMethod"
+          "tokenEndpointAuthMethod",
+          "useIdTokenClaims"
         ],
         "type": "object"
       },

@@ -2627,6 +2627,8 @@ export type SystemConfigOAuthDto = {
     timeout: number;
     /** Token endpoint auth method */
     tokenEndpointAuthMethod: OAuthTokenEndpointAuthMethod;
+    /** Use ID token claims instead of userinfo endpoint (useful for ADFS) */
+    useIdTokenClaims: boolean;
 };
 export type SystemConfigPasswordLoginDto = {
     /** Enabled */

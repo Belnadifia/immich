@@ -10,7 +10,8 @@ export enum OAuthClient {
 export enum OAuthUser {
   NO_EMAIL = 'no-email',
   NO_NAME = 'no-name',
-  NO_USERINFO = 'no-userinfo',
+  ID_TOKEN_CLAIMS = 'id-token-claims',
+  USERINFO_CLAIMS = 'userinfo-claims',
   WITH_QUOTA = 'with-quota',
   WITH_USERNAME = 'with-username',
   WITH_ROLE = 'with-role',
@@ -54,16 +55,13 @@ const withDefaultClaims = (sub: string) => ({
 });
 
 const getClaims = (sub: string, use?: string) => {
-  if (sub === OAuthUser.NO_USERINFO) {
-    // Simulate ADFS-like IDP: full claims only in the ID token, userinfo returns only sub
-    return use === 'id_token'
-      ? {
-          sub,
-          email: 'oauth-no-userinfo@immich.app',
-          email_verified: true,
-          name: 'OAuth User From Token ID',
-        }
-      : { sub };
+  if (sub === OAuthUser.ID_TOKEN_CLAIMS || sub === OAuthUser.USERINFO_CLAIMS) {
+    return {
+      sub,
+      email: `oauth-${sub}@immich.app`,
+      email_verified: true,
+      name: use === 'id_token' ? 'ID Token User' : 'Userinfo User',
+    };
   }
   return claims.find((user) => user.sub === sub) || withDefaultClaims(sub);
 };

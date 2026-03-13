@@ -11,7 +11,6 @@ export enum OAuthUser {
   NO_EMAIL = 'no-email',
   NO_NAME = 'no-name',
   ID_TOKEN_CLAIMS = 'id-token-claims',
-  USERINFO_CLAIMS = 'userinfo-claims',
   WITH_QUOTA = 'with-quota',
   WITH_USERNAME = 'with-username',
   WITH_ROLE = 'with-role',
@@ -55,7 +54,7 @@ const withDefaultClaims = (sub: string) => ({
 });
 
 const getClaims = (sub: string, use?: string) => {
-  if (sub === OAuthUser.ID_TOKEN_CLAIMS || sub === OAuthUser.USERINFO_CLAIMS) {
+  if (sub === OAuthUser.ID_TOKEN_CLAIMS) {
     return {
       sub,
       email: `oauth-${sub}@immich.app`,

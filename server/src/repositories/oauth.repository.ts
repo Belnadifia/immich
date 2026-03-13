@@ -14,7 +14,6 @@ export type OAuthConfig = {
   signingAlgorithm: string;
   tokenEndpointAuthMethod: OAuthTokenEndpointAuthMethod;
   timeout: number;
-  useIdTokenClaims: boolean;
 };
 export type OAuthProfile = UserInfoResponse;
 
@@ -73,13 +72,10 @@ export class OAuthRepository {
       const tokens = await authorizationCodeGrant(client, new URL(url), { expectedState, pkceCodeVerifier });
 
       let profile: OAuthProfile;
-      if (config.useIdTokenClaims) {
+      const tokenClaims = tokens.claims();
+      if (tokenClaims && 'email' in tokenClaims) {
         this.logger.debug('Using ID token claims instead of userinfo endpoint');
-        const claims = tokens.claims();
-        if (!claims) {
-          throw new Error('No ID token claims available');
-        }
-        profile = claims as OAuthProfile;
+        profile = tokenClaims as OAuthProfile;
       } else {
         profile = await fetchUserInfo(client, tokens.access_token, oidc.skipSubjectCheck);
       }

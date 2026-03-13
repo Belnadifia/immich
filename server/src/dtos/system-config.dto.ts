@@ -460,9 +460,6 @@ class SystemConfigOAuthDto {
   @ApiProperty({ description: 'Profile signing algorithm' })
   profileSigningAlgorithm!: string;
 
-  @ValidateBoolean({ optional: true, description: 'Use ID token claims instead of userinfo endpoint (useful for ADFS)' })
-  useIdTokenClaims: boolean = false;
-
   @IsString()
   @ApiProperty({ description: 'Storage label claim' })
   storageLabelClaim!: string;

@@ -111,7 +111,6 @@ export type SystemConfig = {
     profileSigningAlgorithm: string;
     tokenEndpointAuthMethod: OAuthTokenEndpointAuthMethod;
     timeout: number;
-    useIdTokenClaims: boolean;
     storageLabelClaim: string;
     storageQuotaClaim: string;
     roleClaim: string;
@@ -306,7 +305,6 @@ export const defaults = Object.freeze<SystemConfig>({
     roleClaim: 'immich_role',
     tokenEndpointAuthMethod: OAuthTokenEndpointAuthMethod.ClientSecretPost,
     timeout: 30_000,
-    useIdTokenClaims: false,
   },
   passwordLogin: {
     enabled: true,

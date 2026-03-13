@@ -164,14 +164,6 @@
                 isEdited={!(configToEdit.oauth.profileSigningAlgorithm === config.oauth.profileSigningAlgorithm)}
               />
 
-              <SettingSwitch
-                title="Use ID token claims (ADFS)"
-                subtitle="Use claims from the ID token instead of calling the userinfo endpoint. Enable this for ADFS or providers that do not support the userinfo endpoint."
-                bind:checked={configToEdit.oauth.useIdTokenClaims}
-                disabled={disabled || !configToEdit.oauth.enabled}
-                isEdited={!(configToEdit.oauth.useIdTokenClaims === config.oauth.useIdTokenClaims)}
-              />
-
               <SettingInputField
                 inputType={SettingInputFieldType.NUMBER}
                 label={$t('admin.oauth_timeout')}

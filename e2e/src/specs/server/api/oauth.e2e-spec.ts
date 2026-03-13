@@ -381,13 +381,12 @@ describe(`/oauth`, () => {
     });
   });
 
-  describe('useIdTokenClaims', () => {
-    it('should use claims from the ID token when useIdTokenClaims is true', async () => {
+  describe('idTokenClaims', () => {
+    it('should use claims from the ID token if IDP includes them', async () => {
       await setupOAuth(admin.accessToken, {
         enabled: true,
         clientId: OAuthClient.DEFAULT,
         clientSecret: OAuthClient.DEFAULT,
-        useIdTokenClaims: true,
       });
       const callbackParams = await loginWithOAuth(OAuthUser.ID_TOKEN_CLAIMS);
       const { status, body } = await request(app).post('/oauth/callback').send(callbackParams);
@@ -396,24 +395,6 @@ describe(`/oauth`, () => {
         accessToken: expect.any(String),
         name: 'ID Token User',
         userEmail: 'oauth-id-token-claims@immich.app',
-        userId: expect.any(String),
-      });
-    });
-
-    it('should use claims from userinfo when useIdTokenClaims is false', async () => {
-      await setupOAuth(admin.accessToken, {
-        enabled: true,
-        clientId: OAuthClient.DEFAULT,
-        clientSecret: OAuthClient.DEFAULT,
-        useIdTokenClaims: false,
-      });
-      const callbackParams = await loginWithOAuth(OAuthUser.USERINFO_CLAIMS);
-      const { status, body } = await request(app).post('/oauth/callback').send(callbackParams);
-      expect(status).toBe(201);
-      expect(body).toMatchObject({
-        accessToken: expect.any(String),
-        name: 'Userinfo User',
-        userEmail: 'oauth-userinfo-claims@immich.app',
         userId: expect.any(String),
       });
     });

@@ -380,4 +380,37 @@ describe(`/oauth`, () => {
       });
     });
   });
+
+  describe('useIdTokenClaims', () => {
+    it('should login successfully with ID token claims when userinfo only has sub (ADFS-like)', async () => {
+      await setupOAuth(admin.accessToken, {
+        enabled: true,
+        clientId: OAuthClient.DEFAULT,
+        clientSecret: OAuthClient.DEFAULT,
+        useIdTokenClaims: true,
+      });
+      const callbackParams = await loginWithOAuth(OAuthUser.NO_USERINFO);
+      const { status, body } = await request(app).post('/oauth/callback').send(callbackParams);
+      expect(status).toBe(201);
+      expect(body).toMatchObject({
+        accessToken: expect.any(String),
+        name: 'OAuth User From Token ID',
+        userEmail: 'oauth-no-userinfo@immich.app',
+        userId: expect.any(String),
+      });
+    });
+
+    it('should fail with userinfo when IDP only provides sub via userinfo', async () => {
+      await setupOAuth(admin.accessToken, {
+        enabled: true,
+        clientId: OAuthClient.DEFAULT,
+        clientSecret: OAuthClient.DEFAULT,
+        useIdTokenClaims: false,
+      });
+      const callbackParams = await loginWithOAuth(OAuthUser.NO_USERINFO);
+      const { status, body } = await request(app).post('/oauth/callback').send(callbackParams);
+      expect(status).toBe(400);
+      expect(body).toEqual(errorDto.badRequest('OAuth profile does not have an email address'));
+    });
+  });
 });

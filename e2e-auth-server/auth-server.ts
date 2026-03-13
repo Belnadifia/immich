@@ -10,6 +10,7 @@ export enum OAuthClient {
 export enum OAuthUser {
   NO_EMAIL = 'no-email',
   NO_NAME = 'no-name',
+  NO_USERINFO = 'no-userinfo',
   WITH_QUOTA = 'with-quota',
   WITH_USERNAME = 'with-username',
   WITH_ROLE = 'with-role',
@@ -52,12 +53,28 @@ const withDefaultClaims = (sub: string) => ({
   email_verified: true,
 });
 
-const getClaims = (sub: string) => claims.find((user) => user.sub === sub) || withDefaultClaims(sub);
+const getClaims = (sub: string, use?: string) => {
+  if (sub === OAuthUser.NO_USERINFO) {
+    // Simulate ADFS-like IDP: full claims only in the ID token, userinfo returns only sub
+    return use === 'id_token'
+      ? {
+          sub,
+          email: 'oauth-no-userinfo@immich.app',
+          email_verified: true,
+          name: 'OAuth User From Token ID',
+        }
+      : { sub };
+  }
+  return claims.find((user) => user.sub === sub) || withDefaultClaims(sub);
+};
 
 const setup = async () => {
   const { privateKey, publicKey } = await generateKeyPair('RS256');
 
-  const redirectUris = ['http://127.0.0.1:2285/auth/login', 'https://photos.immich.app/oauth/mobile-redirect'];
+  const redirectUris = [
+    'http://127.0.0.1:2285/auth/login',
+    'https://photos.immich.app/oauth/mobile-redirect',
+  ];
   const port = 2286;
   const host = '0.0.0.0';
   const oidc = new Provider(`http://${host}:${port}`, {
@@ -66,7 +83,10 @@ const setup = async () => {
       console.error(error);
       ctx.body = 'Internal Server Error';
     },
-    findAccount: (ctx, sub) => ({ accountId: sub, claims: () => getClaims(sub) }),
+    findAccount: (ctx, sub) => ({
+      accountId: sub,
+      claims: (use) => getClaims(sub, use),
+    }),
     scopes: ['openid', 'email', 'profile'],
     claims: {
       openid: ['sub'],
@@ -94,6 +114,7 @@ const setup = async () => {
         state: 'oidc.state',
       },
     },
+    conformIdTokenClaims: false,
     pkce: {
       required: () => false,
     },
@@ -125,7 +146,10 @@ const setup = async () => {
     ],
   });
 
-  const onStart = () => console.log(`[e2e-auth-server] http://${host}:${port}/.well-known/openid-configuration`);
+  const onStart = () =>
+    console.log(
+      `[e2e-auth-server] http://${host}:${port}/.well-known/openid-configuration`,
+    );
   const app = oidc.listen(port, host, onStart);
   return () => app.close();
 };
